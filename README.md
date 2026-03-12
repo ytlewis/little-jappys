@@ -2,6 +2,72 @@
 
 A comprehensive web platform for baby products, babysitting services, parenting resources, and community support.
 
+## 🚀 Quick Start for Visual Studio Code
+
+### Prerequisites
+- [Node.js](https://nodejs.org/) (version 18 or higher)
+- [Visual Studio Code](https://code.visualstudio.com/)
+- npm (comes with Node.js)
+
+### Setup Instructions
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/ytlewis/little-jappys.git
+   cd little-jappys
+   ```
+
+2. **Open in Visual Studio Code**
+   ```bash
+   code .
+   ```
+   Or open VS Code and use `File > Open Folder` and select the project folder.
+
+3. **Install dependencies**
+   
+   Open the integrated terminal in VS Code (`Ctrl + ~` or `View > Terminal`) and run:
+   ```bash
+   npm install
+   ```
+   
+   Wait for all packages to install (this may take a few minutes).
+
+4. **Start the development server**
+   ```bash
+   npm run dev
+   ```
+   
+   The app will start at: **http://localhost:8080**
+
+5. **Open in browser**
+   
+   Click the link in the terminal or manually open: http://localhost:8080
+
+### 🎯 That's It! You're Ready to Develop!
+
+The development server will automatically reload when you make changes to the code.
+
+---
+
+## 📁 Project Structure
+
+```
+little-jappys/
+├── src/
+│   ├── components/       # Reusable UI components
+│   │   ├── admin/       # Admin-specific components
+│   │   └── ui/          # Base UI components (shadcn/ui)
+│   ├── pages/           # Page components (routes)
+│   ├── lib/             # Utility functions and data
+│   ├── hooks/           # Custom React hooks
+│   ├── assets/          # Images and static files
+│   └── main.tsx         # Application entry point
+├── public/              # Public static files
+└── package.json         # Dependencies and scripts
+```
+
+---
+
 ## Features
 
 ### 🛍️ Baby Shop
@@ -61,113 +127,141 @@ A comprehensive web platform for baby products, babysitting services, parenting 
 - **Build Tool**: Vite
 - **Icons**: Lucide React
 
-## Getting Started
+---
 
-### Prerequisites
-- Node.js 18+ or Bun
-- npm, yarn, or bun package manager
+## 🛠️ Development Commands
 
-### Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/ytlewis/little-jappys.git
-cd little-jappys
-```
-
-2. Install dependencies:
-```bash
-npm install
-# or
-bun install
-```
-
-3. Start the development server:
+### Start Development Server
 ```bash
 npm run dev
-# or
-bun dev
 ```
+Starts the app at http://localhost:8080 with hot reload.
 
-4. Open your browser and navigate to:
+### Build for Production
+```bash
+npm run build
 ```
-http://localhost:8080
+Creates optimized production build in the `dist` folder.
+
+### Preview Production Build
+```bash
+npm run preview
 ```
+Preview the production build locally.
 
-## Project Structure
-
+### Run Linter
+```bash
+npm run lint
 ```
-src/
-├── components/       # Reusable UI components
-│   ├── admin/       # Admin-specific components
-│   └── ui/          # Base UI components
-├── pages/           # Page components
-├── lib/             # Utility functions and data
-├── hooks/           # Custom React hooks
-└── assets/          # Static assets
+Check code for errors and style issues.
+
+### Run Tests
+```bash
+npm test
 ```
+Run the test suite.
 
-## Available Scripts
+---
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-- `npm test` - Run tests
+## 🎨 VS Code Recommended Extensions
 
-## Admin Access
+For the best development experience, install these extensions:
+
+1. **ES7+ React/Redux/React-Native snippets** - Code snippets
+2. **Tailwind CSS IntelliSense** - Tailwind autocomplete
+3. **ESLint** - Code linting
+4. **Prettier** - Code formatting
+5. **TypeScript Vue Plugin (Volar)** - TypeScript support
+
+VS Code will prompt you to install recommended extensions when you open the project.
+
+---
+
+## 🔑 Admin Access
 
 To access the admin dashboard:
 1. Navigate to `/admin/login`
 2. Use your admin credentials
 3. Manage products, bookings, and view analytics
 
-## Customer Features
+---
 
-### Shopping
-1. Browse products at `/shop`
-2. Add items to cart
-3. Proceed to checkout
-4. Leave reviews after purchase
+## 🌐 Available Pages
 
-### Babysitting
-1. View babysitters at `/babysitting`
-2. Select a sitter
-3. Fill booking form with date, time, and details
-4. Confirm booking
+- **Home**: `/` - Landing page
+- **Shop**: `/shop` - Browse and buy products
+- **Cart**: `/cart` - Shopping cart
+- **Babysitting**: `/babysitting` - Book babysitters
+- **Parenting**: `/parenting` - Parenting tips
+- **Donate**: `/donate` - Donation platform
+- **Contact**: `/contact` - Contact information
+- **Login**: `/login` - Customer login
+- **Signup**: `/signup` - Customer registration
+- **Admin Login**: `/admin/login` - Admin access
+- **Admin Dashboard**: `/admin/dashboard` - Admin panel
 
-## Security Features
+---
 
-- Secure authentication system
-- Protected admin routes
-- Input validation and sanitization
-- XSS protection
-- Secure data storage
+## 🐛 Troubleshooting
 
-## Browser Support
+### Port Already in Use
+If port 8080 is already in use, the dev server will automatically use the next available port.
 
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
+### Dependencies Not Installing
+Try deleting `node_modules` and `package-lock.json`, then run `npm install` again.
 
-## Contributing
+### Build Errors
+Make sure you're using Node.js version 18 or higher:
+```bash
+node --version
+```
+
+### Hot Reload Not Working
+Try restarting the dev server (`Ctrl+C` then `npm run dev`).
+
+---
+
+## 📦 Deployment
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed deployment instructions.
+
+---
+
+## 🤝 Contributing
 
 This is a private project. For inquiries, please contact the development team.
 
-## License
+---
+
+## 📄 License
 
 © 2026 Little Jappy's. All rights reserved.
 
-## Contact
+---
+
+## 📞 Contact
 
 - **Email**: sapenzian@gmail.com
 - **Phone**: 0722 123 329
 - **Location**: Nairobi, Kenya
 
-## Acknowledgments
+---
+
+## 🙏 Acknowledgments
 
 - Developed by Sapenzia Musyoka
 - UI components from shadcn/ui
 - Icons from Lucide
 - Images from Unsplash
+
+---
+
+## 💡 Need Help?
+
+If you encounter any issues:
+1. Check the troubleshooting section above
+2. Make sure all dependencies are installed
+3. Verify Node.js version is 18+
+4. Contact: sapenzian@gmail.com
+
+**Happy Coding! 🚀**
