@@ -1,0 +1,526 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getFromLocalStorage, saveToLocalStorage, getDonations, type DonationItem } from "@/lib/storage";
+import { toast } from "@/hooks/use-toast";
+import { BarChart3, Package, Users, BookOpen, Gift, FileText, Trash2, Edit, Plus } from "lucide-react";
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  category: string;
+}
+
+interface Sitter {
+  id: string;
+  name: string;
+  rate: number;
+  image: string;
+  experience: string;
+  rating: number;
+}
+
+interface ParentingTip {
+  id: string;
+  ageGroup: string;
+  title: string;
+  content: string;
+}
+
+interface DonationRequest {
+  id: string;
+  requesterName: string;
+  email: string;
+  phone: string;
+  itemNeeded: string;
+  reason: string;
+  status: 'pending' | 'approved' | 'rejected';
+  createdAt: string;
+}
+
+const AdminDashboardPage = () => {
+  const navigate = useNavigate();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [sitters, setSitters] = useState<Sitter[]>([]);
+  const [tips, setTips] = useState<ParentingTip[]>([]);
+  const [donations, setDonations] = useState<DonationItem[]>([]);
+  const [requests, setRequests] = useState<DonationRequest[]>([]);
+
+    } else {
+      const newProduct = { ...productForm, id: `prod${Date.now()}` };
+      const updated = [...products, newProduct];= useState(false);
+  const [showTipDialog, setShowTipDialog] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editingSitter, setEditingSitter] = useState<Sitter | null>(null);
+  const [editingTip, setEditingTip] = useState<ParentingTip | null>(null);
+
+  const [productForm, setProductForm] = useState({ name: "", price: 0, image: "", category: "" });
+  const [sitterForm, setSitterForm] = useState({ name: "", rate: 0, image: "", experience: "", rating: 5 });
+  const [tipForm, setTipForm] = useState({ ageGroup: "0-6", title: "", content: "" });
+
+  useEffect(() => {
+    const isLoggedIn = getFromLocalStorage<boolean>("littlejappy_admin_logged_in");
+    if (!isLoggedIn) {
+      navigate("/admin/login");
+      return;
+    }
+    loadData();
+  }, [navigate]);
+
+  const loadData = () => {
+    setProducts(getFromLocalStorage<Product[]>("littlejappy_products") || []);
+    setSitters(getFromLocalStorage<Sitter[]>("littlejappy_sitters") || []);
+    setTips(getFromLocalStorage<ParentingTip[]>("littlejappy_tips") || []);
+    setDonations(getDonations());
+    setRequests(getFromLocalStorage<DonationRequest[]>("littlejappy_donation_requests") || []);
+  };
+
+  const handleLogout = () => {
+    saveToLocalStorage("littlejappy_admin_logged_in", false);
+    } else {
+      const newSitter = { ...sitterForm, id: `sitter${Date.now()}` };
+      const updated = [...sitters, newSitter];
+  const handleProductSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingProduct) {
+      const updated = products.map(p => p.id === editingProduct.id ? { ...productForm, id: editingProduct.id } : p);
+      setProducts(updated);
+      saveToLocalStorage("littlejappy_products", updated);
+      toast({ title: "Product updated successfully!" });
+    } else {
+      const newProduct = { ...productForm, id: `prod${Date.now()}` };
+      const updated = [...products, newProduct];
+      setProducts(updated);
+      saveToLocalStorage("littlejappy_products", updated);
+      toast({ title: "Product added successfully!" });
+    }
+    setShowProductDialog(false);
+    } else {
+      const newTip = { ...tipForm, id: `tip${Date.now()}` };
+      const updated = [...tips, newTip];
+
+  const deleteProduct = (id: string) => {
+    const updated = products.filter(p => p.id !== id);
+    setProducts(updated);
+    saveToLocalStorage("littlejappy_products", updated);
+    toast({ title: "Product deleted" });
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'product' | 'sitter') => {
+    const file = e.target.files?.[0];
+  const handleRequestAction = (id: string, status: 'approved' | 'rejected') => {
+    const updated = requests.map(r => r.id === id ? { ...r, status } : r);
+    setRequests(updated); saveToLocalStorage("littlejappy_donation_requests", updated); toast({ title: `Request ${status}` });
+  };    const base64 = reader.result as string;
+        if (type === 'product') {
+          setProductForm({ ...productForm, image: base64 });
+        } else {
+          setSitterForm({ ...sitterForm, image: base64 });
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSitterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingSitter) {
+      const updated = sitters.map(s => s.id === editingSitter.id ? { ...sitterForm, id: editingSitter.id } : s);
+      setSitters(updated);
+      saveToLocalStorage("littlejappy_sitters", updated);
+      toast({ title: "Sitter updated successfully!" });
+    } else {
+      const newSitter = { ...sitterForm, id: `sitter${Date.now()}` };
+      const updated = [...sitters, newSitter];
+      setSitters(updated);
+      saveToLocalStorage("littlejappy_sitters", updated);
+      toast({ title: "Sitter added successfully!" });
+    }
+    setShowSitterDialog(false);
+    setEditingSitter(null);
+    setSitterForm({ name: "", rate: 0, image: "", experience: "", rating: 5 });
+  };
+
+  const deleteSitter = (id: string) => {
+    const updated = sitters.filter(s => s.id !== id);
+    setSitters(updated);
+    saveToLocalStorage("littlejappy_sitters", updated);
+    toast({ title: "Sitter deleted" });
+  };
+
+  const handleTipSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingTip) {
+      const updated = tips.map(t => t.id === editingTip.id ? { ...tipForm, id: editingTip.id } : t);
+      setTips(updated);
+      saveToLocalStorage("littlejappy_tips", updated);
+      toast({ title: "Tip updated successfully!" });
+    } else {
+      const newTip = { ...tipForm, id: `tip${Date.now()}` };
+      const updated = [...tips, newTip];
+      setTips(updated);
+      saveToLocalStorage("littlejappy_tips", updated);
+      toast({ title: "Tip added successfully!" });
+    }
+    setShowTipDialog(false);
+    setEditingTip(null);
+    setTipForm({ ageGroup: "0-6", title: "", content: "" });
+  };
+
+  const deleteTip = (id: string) => {
+    const updated = tips.filter(t => t.id !== id);
+    setTips(updated);
+    saveToLocalStorage("littlejappy_tips", updated);
+    toast({ title: "Tip deleted" });
+  };
+
+  const handleRequestAction = (id: string, status: 'approved' | 'rejected') => {
+    const updated = requests.map(r => r.id === id ? { ...r, status } : r);
+    setRequests(updated);
+    saveToLocalStorage("littlejappy_donation_requests", updated);
+    toast({ title: `Request ${status}` });
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      <header className="bg-card border-b border-border px-6 py-4 flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
+        <Button onClick={handleLogout} variant="outline">Logout</Button>
+      </header>
+
+      <main className="container mx-auto px-4 py-8">
+        <Tabs defaultValue="analytics" className="w-full">
+          <TabsList className="grid w-full grid-cols-6 mb-8">
+            <TabsTrigger value="analytics"><BarChart3 className="w-4 h-4 mr-2" />Analytics</TabsTrigger>
+            <TabsTrigger value="products"><Package className="w-4 h-4 mr-2" />Products</TabsTrigger>
+            <TabsTrigger value="sitters"><Users className="w-4 h-4 mr-2" />Sitters</TabsTrigger>
+            <TabsTrigger value="tips"><BookOpen className="w-4 h-4 mr-2" />Tips</TabsTrigger>
+            <TabsTrigger value="donations"><Gift className="w-4 h-4 mr-2" />Donations</TabsTrigger>
+            <TabsTrigger value="requests"><FileText className="w-4 h-4 mr-2" />Requests</TabsTrigger>
+          </TabsList>
+
+
+          <TabsContent value="analytics">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm">Total Products</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold">{products.length}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm">Total Sitters</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold">{sitters.length}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm">Donations</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold">{donations.length}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm">Pending Requests</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold">{requests.filter(r => r.status === 'pending').length}</p>
+                </CardContent>
+              </Card>
+                        <span className={`text-xs px-2 py-1 rounded ${request.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : request.status === 'approved' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{request.status}</span>
+          </TabsContent>
+
+          <TabsContent value="products">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Manage Products</CardTitle>
+                <Button onClick={() => { setShowProductDialog(true); setEditingProduct(null); setProductForm({ name: "", price: 0, image: "", category: "" }); }}>
+                  <Plus className="w-4 h-4 mr-2" />Add Product
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {products.map(product => (
+                    <div key={product.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center gap-4">
+                        {product.image && <img src={product.image} alt={product.name} className="w-16 h-16 object-cover rounded" />}
+                        <div>
+                          <h3 className="font-semibold">{product.name}</h3>
+                          <p className="text-sm text-muted-foreground">KSh {product.price.toFixed(0)}</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline" onClick={() => { setEditingProduct(product); setProductForm(product); setShowProductDialog(true); }}>
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button size="sm" variant="destructive" onClick={() => deleteProduct(product.id)}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="sitters">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Manage Sitters</CardTitle>
+                <Button onClick={() => { setShowSitterDialog(true); setEditingSitter(null); setSitterForm({ name: "", rate: 0, image: "", experience: "", rating: 5 }); }}>
+                  <Plus className="w-4 h-4 mr-2" />Add Sitter
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {sitters.map(sitter => (
+                    <div key={sitter.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center gap-4">
+                        {sitter.image && <img src={sitter.image} alt={sitter.name} className="w-16 h-16 object-cover rounded-full" />}
+                        <div>
+                          <h3 className="font-semibold">{sitter.name}</h3>
+                          <p className="text-sm text-muted-foreground">KSh {sitter.rate.toFixed(0)}/hr · {sitter.experience}</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline" onClick={() => { setEditingSitter(sitter); setSitterForm(sitter); setShowSitterDialog(true); }}>
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button size="sm" variant="destructive" onClick={() => deleteSitter(sitter.id)}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+
+          <TabsContent value="tips">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Manage Parenting Tips</CardTitle>
+                <Button onClick={() => { setShowTipDialog(true); setEditingTip(null); setTipForm({ ageGroup: "0-6", title: "", content: "" }); }}>
+                  <Plus className="w-4 h-4 mr-2" />Add Tip
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {tips.map(tip => (
+                    <div key={tip.id} className="p-4 border rounded-lg">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">{tip.ageGroup} months</span>
+                          <h3 className="font-semibold mt-2">{tip.title}</h3>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" onClick={() => { setEditingTip(tip); setTipForm(tip); setShowTipDialog(true); }}>
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button size="sm" variant="destructive" onClick={() => deleteTip(tip.id)}>
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{tip.content}</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="donations">
+            <Card>
+              <CardHeader>
+                <CardTitle>Donated Items</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {donations.map(donation => (
+                    <div key={donation.id} className="p-4 border rounded-lg">
+                      <h3 className="font-semibold">{donation.itemName}</h3>
+                      <p className="text-sm text-muted-foreground">Donated by {donation.donorName} · {donation.condition}</p>
+                      <p className="text-xs text-muted-foreground">{new Date(donation.createdAt).toLocaleDateString()}</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="requests">
+            <Card>
+              <CardHeader>
+                <CardTitle>Donation Requests</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {requests.map(request => (
+                    <div key={request.id} className="p-4 border rounded-lg">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h3 className="font-semibold">{request.requesterName}</h3>
+                          <p className="text-sm text-muted-foreground">{request.email} · {request.phone}</p>
+                        </div>
+                        <span className={`text-xs px-2 py-1 rounded ${
+                          request.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                          request.status === 'approved' ? 'bg-green-100 text-green-800' :
+                          'bg-red-100 text-red-800'
+                        }`}>
+                          {request.status}
+                        </span>
+                      </div>
+                      <p className="text-sm mb-1"><strong>Item:</strong> {request.itemNeeded}</p>
+                      <p className="text-sm mb-3"><strong>Reason:</strong> {request.reason}</p>
+                      {request.status === 'pending' && (
+                        <div className="flex gap-2">
+                          <Button size="sm" onClick={() => handleRequestAction(request.id, 'approved')}>Approve</Button>
+                          <Button size="sm" variant="destructive" onClick={() => handleRequestAction(request.id, 'rejected')}>Reject</Button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </main>
+
+
+      {showProductDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle>{editingProduct ? 'Edit Product' : 'Add Product'}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleProductSubmit} className="space-y-4">
+                <div>
+                  <Label>Name</Label>
+                  <Input value={productForm.name} onChange={(e) => setProductForm({...productForm, name: e.target.value})} required />
+                </div>
+                <div>
+                  <Label>Price (KSh)</Label>
+                  <Input type="number" value={productForm.price} onChange={(e) => setProductForm({...productForm, price: Number(e.target.value)})} required />
+                </div>
+                <div>
+                  <Label>Category</Label>
+                  <Input value={productForm.category} onChange={(e) => setProductForm({...productForm, category: e.target.value})} required />
+                </div>
+                <div>
+                  <Label>Image</Label>
+                  <Input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'product')} />
+                  {productForm.image && <img src={productForm.image} alt="Preview" className="mt-2 w-20 h-20 object-cover rounded" />}
+                </div>
+                <div className="flex gap-2">
+                  <Button type="submit">Save</Button>
+                  <Button type="button" variant="outline" onClick={() => setShowProductDialog(false)}>Cancel</Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {showSitterDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle>{editingSitter ? 'Edit Sitter' : 'Add Sitter'}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSitterSubmit} className="space-y-4">
+                <div>
+                  <Label>Name</Label>
+                  <Input value={sitterForm.name} onChange={(e) => setSitterForm({...sitterForm, name: e.target.value})} required />
+                </div>
+                <div>
+                  <Label>Rate (KSh/hr)</Label>
+                  <Input type="number" value={sitterForm.rate} onChange={(e) => setSitterForm({...sitterForm, rate: Number(e.target.value)})} required />
+                </div>
+                <div>
+                  <Label>Experience</Label>
+                  <Input value={sitterForm.experience} onChange={(e) => setSitterForm({...sitterForm, experience: e.target.value})} required />
+                </div>
+                <div>
+                  <Label>Rating</Label>
+                  <Input type="number" min="1" max="5" step="0.1" value={sitterForm.rating} onChange={(e) => setSitterForm({...sitterForm, rating: Number(e.target.value)})} required />
+                </div>
+                <div>
+                  <Label>Image</Label>
+                  <Input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'sitter')} />
+                  {sitterForm.image && <img src={sitterForm.image} alt="Preview" className="mt-2 w-20 h-20 object-cover rounded-full" />}
+                </div>
+                <div className="flex gap-2">
+                  <Button type="submit">Save</Button>
+                  <Button type="button" variant="outline" onClick={() => setShowSitterDialog(false)}>Cancel</Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {showTipDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle>{editingTip ? 'Edit Tip' : 'Add Tip'}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleTipSubmit} className="space-y-4">
+                <div>
+                  <Label>Age Group</Label>
+                  <Select value={tipForm.ageGroup} onValueChange={(value) => setTipForm({...tipForm, ageGroup: value})}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0-6">0-6 Months</SelectItem>
+                      <SelectItem value="6-12">6-12 Months</SelectItem>
+                      <SelectItem value="1-2">1-2 Years</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Title</Label>
+                  <Input value={tipForm.title} onChange={(e) => setTipForm({...tipForm, title: e.target.value})} required />
+                </div>
+                <div>
+                  <Label>Content</Label>
+                  <Textarea value={tipForm.content} onChange={(e) => setTipForm({...tipForm, content: e.target.value})} required />
+                </div>
+                <div className="flex gap-2">
+                  <Button type="submit">Save</Button>
+                  <Button type="button" variant="outline" onClick={() => setShowTipDialog(false)}>Cancel</Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default AdminDashboardPage;
