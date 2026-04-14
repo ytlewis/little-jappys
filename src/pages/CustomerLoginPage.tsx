@@ -1,17 +1,22 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { saveToLocalStorage, getFromLocalStorage } from "@/lib/storage";
+import { getFromLocalStorage } from "@/lib/storage";
+import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { Baby, ArrowLeft } from "lucide-react";
 
 const CustomerLoginPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const from = (location.state as any)?.from?.pathname || "/shop";
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,13 +25,9 @@ const CustomerLoginPage = () => {
     const user = users.find(u => u.email === email && u.password === password);
     
     if (user) {
-      saveToLocalStorage("littlejappy_customer_auth", { 
-        isAuthenticated: true, 
-        email: user.email,
-        name: user.name 
-      });
+      login(user.email, user.name);
       toast.success("Welcome back!");
-      navigate("/shop");
+      navigate(from, { replace: true });
     } else {
       toast.error("Invalid email or password");
     }

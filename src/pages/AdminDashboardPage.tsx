@@ -376,18 +376,21 @@ interface Product {
   image: string;
   stock?: number;
   category?: string;
+  description?: string;
 }
 
 const ProductsManager = ({ onUpdate }: { onUpdate: () => void }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
   const [formData, setFormData] = useState({
     name: "",
     price: "",
     image: "",
     stock: "",
     category: "",
+    description: "",
   });
 
   useEffect(() => {
@@ -404,19 +407,31 @@ const ProductsManager = ({ onUpdate }: { onUpdate: () => void }) => {
     }
   };
 
+  const handleImageFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const base64 = ev.target?.result as string;
+      setFormData((prev) => ({ ...prev, image: base64 }));
+      setImagePreview(base64);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     const productData: Product = {
       id: editingProduct?.id || `p${Date.now()}`,
       name: formData.name,
       price: parseInt(formData.price),
-      image: formData.image || "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400&h=400&fit=crop",
+      image: formData.image || "/placeholder.svg",
       stock: formData.stock ? parseInt(formData.stock) : undefined,
       category: formData.category || undefined,
+      description: formData.description || undefined,
     };
 
-    let updatedProducts;
+    let updatedProducts: Product[];
     if (editingProduct) {
       updatedProducts = products.map((p) => (p.id === editingProduct.id ? productData : p));
       toast.success("Product updated successfully!");
@@ -434,12 +449,14 @@ const ProductsManager = ({ onUpdate }: { onUpdate: () => void }) => {
 
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
+    setImagePreview(product.image);
     setFormData({
       name: product.name,
       price: product.price.toString(),
       image: product.image,
       stock: product.stock?.toString() || "",
       category: product.category || "",
+      description: product.description || "",
     });
     setIsDialogOpen(true);
   };
@@ -455,8 +472,9 @@ const ProductsManager = ({ onUpdate }: { onUpdate: () => void }) => {
   };
 
   const resetForm = () => {
-    setFormData({ name: "", price: "", image: "", stock: "", category: "" });
+    setFormData({ name: "", price: "", image: "", stock: "", category: "", description: "" });
     setEditingProduct(null);
+    setImagePreview("");
   };
 
   return (
@@ -470,20 +488,14 @@ const ProductsManager = ({ onUpdate }: { onUpdate: () => void }) => {
             </CardTitle>
             <CardDescription>Add, edit, or remove products from the baby shop</CardDescription>
           </div>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) resetForm(); }}>
             <DialogTrigger asChild>
-              <Button
-                onClick={() => {
-                  resetForm();
-                  setIsDialogOpen(true);
-                }}
-                className="gap-2 bg-accent hover:bg-accent/90"
-              >
+              <Button onClick={() => { resetForm(); setIsDialogOpen(true); }} className="gap-2 bg-accent hover:bg-accent/90">
                 <Plus className="h-4 w-4" />
                 Add Product
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md">
+            <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{editingProduct ? "Edit Product" : "Add New Product"}</DialogTitle>
                 <DialogDescription>
@@ -493,68 +505,47 @@ const ProductsManager = ({ onUpdate }: { onUpdate: () => void }) => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <Label htmlFor="name">Product Name</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="e.g., Baby Blanket"
-                    required
-                  />
+                  <Input id="name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="e.g., Baby Blanket" required />
                 </div>
                 <div>
                   <Label htmlFor="price">Price (KSh)</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                    placeholder="e.g., 1500"
-                    required
-                  />
+                  <Input id="price" type="number" value={formData.price} onChange={(e) => setFormData({ ...formData, price: e.target.value })} placeholder="e.g., 1500" required />
                 </div>
                 <div>
-                  <Label htmlFor="image">Image URL</Label>
-                  <Input
-                    id="image"
-                    value={formData.image}
-                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                    placeholder="https://images.unsplash.com/..."
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Use Unsplash URLs for best results
-                  </p>
+                  <Label htmlFor="description">Description</Label>
+                  <Input id="description" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder="Short product description" />
                 </div>
                 <div>
-                  <Label htmlFor="category">Category (Optional)</Label>
-                  <Input
-                    id="category"
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    placeholder="e.g., Clothing, Toys, Feeding"
-                  />
+                  <Label htmlFor="category">Category</Label>
+                  <Input id="category" value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} placeholder="e.g., Clothing, Toys, Feeding" />
                 </div>
                 <div>
                   <Label htmlFor="stock">Stock (Optional)</Label>
-                  <Input
-                    id="stock"
-                    type="number"
-                    value={formData.stock}
-                    onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                    placeholder="e.g., 50"
+                  <Input id="stock" type="number" value={formData.stock} onChange={(e) => setFormData({ ...formData, stock: e.target.value })} placeholder="e.g., 50" />
+                </div>
+                <div>
+                  <Label htmlFor="imageFile">Product Image</Label>
+                  <input
+                    id="imageFile"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageFile}
+                    className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-accent/20 file:text-accent-foreground hover:file:bg-accent/30 cursor-pointer mt-1"
                   />
+                  {imagePreview && (
+                    <div className="mt-2 rounded-lg overflow-hidden border border-border h-32 w-32">
+                      <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  {!imagePreview && editingProduct && (
+                    <p className="text-xs text-muted-foreground mt-1">Leave empty to keep current image</p>
+                  )}
                 </div>
                 <div className="flex gap-2">
                   <Button type="submit" className="flex-1 bg-accent hover:bg-accent/90">
                     {editingProduct ? "Update Product" : "Add Product"}
                   </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      resetForm();
-                      setIsDialogOpen(false);
-                    }}
-                  >
+                  <Button type="button" variant="outline" onClick={() => { resetForm(); setIsDialogOpen(false); }}>
                     Cancel
                   </Button>
                 </div>
@@ -571,40 +562,21 @@ const ProductsManager = ({ onUpdate }: { onUpdate: () => void }) => {
             {products.map((product) => (
               <div key={product.id} className="border rounded-lg p-4 space-y-3">
                 <div className="aspect-square bg-muted rounded-lg overflow-hidden">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
                 </div>
                 <div>
                   <h3 className="font-semibold">{product.name}</h3>
                   <p className="text-sm text-muted-foreground">KSh {product.price.toFixed(0)}</p>
-                  {product.category && (
-                    <p className="text-xs text-muted-foreground">{product.category}</p>
-                  )}
-                  {product.stock !== undefined && (
-                    <p className="text-xs text-muted-foreground">Stock: {product.stock}</p>
-                  )}
+                  {product.category && <p className="text-xs text-muted-foreground">{product.category}</p>}
+                  {product.description && <p className="text-xs text-muted-foreground mt-1">{product.description}</p>}
+                  {product.stock !== undefined && <p className="text-xs text-muted-foreground">Stock: {product.stock}</p>}
                 </div>
                 <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEdit(product)}
-                    className="flex-1 gap-1"
-                  >
-                    <Edit className="h-3 w-3" />
-                    Edit
+                  <Button variant="outline" size="sm" onClick={() => handleEdit(product)} className="flex-1 gap-1">
+                    <Edit className="h-3 w-3" /> Edit
                   </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleDelete(product.id)}
-                    className="flex-1 gap-1"
-                  >
-                    <Trash2 className="h-3 w-3" />
-                    Delete
+                  <Button variant="destructive" size="sm" onClick={() => handleDelete(product.id)} className="flex-1 gap-1">
+                    <Trash2 className="h-3 w-3" /> Delete
                   </Button>
                 </div>
               </div>

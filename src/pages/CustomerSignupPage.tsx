@@ -5,11 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { saveToLocalStorage, getFromLocalStorage } from "@/lib/storage";
+import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { Baby, ArrowLeft } from "lucide-react";
 
 const CustomerSignupPage = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -38,11 +40,7 @@ const CustomerSignupPage = () => {
     users.push({ name, email, password, createdAt: new Date().toISOString() });
     saveToLocalStorage("littlejappy_users", users);
     
-    saveToLocalStorage("littlejappy_customer_auth", { 
-      isAuthenticated: true, 
-      email,
-      name 
-    });
+    login(email, name);
     
     toast.success("Account created successfully!");
     navigate("/shop");

@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { ShoppingBag, Users, BookOpen, Heart, ArrowRight, Star, ShoppingCart, Lightbulb, Gift } from "lucide-react";
 import Layout from "@/components/Layout";
-import heroImage from "@/assets/hero-mother-baby.png";
 
 const features = [
   { icon: ShoppingBag, title: "Baby Shop", desc: "Quality Products for Every Milestone.", to: "/shop", color: "bg-baby-blue text-primary" },
@@ -43,7 +42,11 @@ const HomePage = () => (
           </Link>
         </div>
         <div className="flex-1 flex justify-center">
-          <img src={heroImage} alt="Mother and baby" className="w-full max-w-md animate-float" />
+          <img
+            src="https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=600&h=600&fit=crop&crop=faces"
+            alt="Mother and baby"
+            className="w-full max-w-md rounded-3xl shadow-2xl object-cover animate-float"
+          />
         </div>
       </div>
     </section>

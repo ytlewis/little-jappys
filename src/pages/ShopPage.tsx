@@ -17,6 +17,7 @@ interface Product {
   image: string;
   stock?: number;
   category?: string;
+  description?: string;
 }
 
 interface Review {
@@ -41,11 +42,18 @@ const ShopPage = () => {
       setCustomerName(auth.name);
     }
 
+    // Clear cached products if stale (old format or fewer products than default)
     const storedProducts = getFromLocalStorage<Product[]>("littlejappy_products");
-    if (storedProducts && storedProducts.length > 0) {
-      setProducts(storedProducts);
-    } else {
+    if (
+      !storedProducts ||
+      storedProducts.length === 0 ||
+      storedProducts[0].description === undefined ||
+      storedProducts.length < defaultProducts.length
+    ) {
+      localStorage.removeItem("littlejappy_products");
       setProducts(defaultProducts);
+    } else {
+      setProducts(storedProducts);
     }
   }, []);
 
@@ -169,15 +177,17 @@ const ProductCard = ({
 
   return (
     <div className="bg-card rounded-2xl border border-border shadow-md overflow-hidden group hover:shadow-xl transition-all hover:-translate-y-1">
-      <div className="bg-baby-blue p-6 flex items-center justify-center h-48">
-        <img src={product.image} alt={product.name} className="h-36 w-36 object-contain group-hover:scale-110 transition-transform" />
+      <div className="bg-baby-blue overflow-hidden flex items-center justify-center h-48">
+        <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
       </div>
       <div className="p-5">
         <h3 className="text-lg font-bold text-foreground">{product.name}</h3>
         {product.category && (
-          <p className="text-xs text-gray-500 mt-1">{product.category}</p>
+          <span className="text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full mt-1 inline-block">{product.category}</span>
         )}
-        
+        {product.description && (
+          <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{product.description}</p>
+        )}
         <div className="flex items-center gap-2 mt-2">
           <div className="flex">
             {[...Array(5)].map((_, i) => (
