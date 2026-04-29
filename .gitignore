@@ -23,3 +23,28 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Backup and generated files — do not commit
+*.bak
+src/App-backup.tsx
+src/pages/AdminDashboardPage-simple.tsx
+src/pages/BabysittingPage.tsx
+src/test/
+vitest.config.ts
+playwright.config.ts
+playwright-fixture.ts
+
+# AI-generated guide files — do not commit
+ADMIN_PRODUCT_MANAGEMENT_GUIDE.md
+BABYSITTER_BOOKING_GUIDE.md
+DEPLOYMENT.md
+FINAL_SUMMARY.md
+GITHUB_PUSH_INSTRUCTIONS.md
+PUSH_NOW.md
+SETUP_GUIDE.md
+UPDATES.md
+
+# Environment secrets — never commit
+.env
+.env.*
+!.env.example
