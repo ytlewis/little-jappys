@@ -6,6 +6,7 @@ import { getCart, removeFromCart, clearCart, type CartItem, getFromLocalStorage,
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { sendOrderConfirmationEmail } from "@/lib/email";
 
 type PaymentMethod = "mpesa" | "card" | "bank";
 
@@ -48,7 +49,7 @@ const CartPage = () => {
     setStep("payment");
   };
 
-  const handlePlaceOrder = (e: React.FormEvent) => {
+  const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const orderId = `ORD-${Date.now()}`;
@@ -78,7 +79,31 @@ const CartPage = () => {
     window.dispatchEvent(new Event("cartUpdated"));
     setOrderConfirmation(confirmation);
     setStep("confirmed");
-    toast.success("Order placed! A confirmation has been saved to your account.");
+
+    // Send confirmation email
+    if (confirmation.email) {
+      const itemsList = confirmation.items
+        .map(i => `${i.name} x${i.quantity} — KSh ${(i.price * i.quantity).toFixed(0)}`)
+        .join("\n");
+
+      const sent = await sendOrderConfirmationEmail({
+        toEmail: confirmation.email,
+        toName: confirmation.customerName,
+        orderId: confirmation.orderId,
+        orderDate: confirmation.date,
+        paymentMethod: confirmation.paymentMethod,
+        itemsList,
+        orderTotal: `KSh ${confirmation.total.toFixed(0)}`,
+      });
+
+      if (sent) {
+        toast.success(`Order confirmed! A confirmation email has been sent to ${confirmation.email}`);
+      } else {
+        toast.success("Order placed successfully!");
+      }
+    } else {
+      toast.success("Order placed successfully!");
+    }
   };
 
   // Order Confirmed Screen
@@ -153,7 +178,7 @@ const CartPage = () => {
           </button>
           <h1 className="text-3xl font-bold text-foreground mb-8">Payment</h1>
 
-          <form onSubmit={handlePlaceOrder} className="space-y-6">
+          <form onSubmit={(e) => { handlePlaceOrder(e); }} className="space-y-6">
             {/* Payment method selector */}
             <div className="bg-card rounded-2xl border border-border p-6 shadow-md">
               <h2 className="font-bold text-foreground mb-4">Select Payment Method</h2>
