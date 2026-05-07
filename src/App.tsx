@@ -8,7 +8,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import HomePage from "./pages/HomePage";
 import ShopPage from "./pages/ShopPage";
 import CartPage from "./pages/CartPage";
-import BabysittingPage from "./pages/BabysittingPage-simple";
+import BabysittingPage from "./pages/BabysittingPage";
 import ParentingPage from "./pages/ParentingPage";
 import DonatePage from "./pages/DonatePage";
 import ContactPage from "./pages/ContactPage";
