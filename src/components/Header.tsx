@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ShoppingCart, Menu, X, Baby, User, LogOut } from "lucide-react";
-import { getCartCount, getFromLocalStorage, removeFromLocalStorage } from "@/lib/storage";
+import { ShoppingCart, Menu, X, Baby, User, LogOut, Settings, ChevronDown } from "lucide-react";
+import { getCartCount, removeFromLocalStorage } from "@/lib/storage";
+import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 
 const navLinks = [
@@ -16,21 +17,15 @@ const navLinks = [
 const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, isAuthenticated, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [customerName, setCustomerName] = useState("");
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const updateCount = () => setCartCount(getCartCount());
     updateCount();
-    
-    const auth = getFromLocalStorage<{ isAuthenticated: boolean; name: string }>("littlejappy_customer_auth");
-    if (auth?.isAuthenticated) {
-      setIsAuthenticated(true);
-      setCustomerName(auth.name);
-    }
-    
     window.addEventListener("storage", updateCount);
     window.addEventListener("cartUpdated", updateCount);
     return () => {
@@ -39,10 +34,20 @@ const Header = () => {
     };
   }, [location]);
 
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
   const handleLogout = () => {
-    removeFromLocalStorage("littlejappy_customer_auth");
-    setIsAuthenticated(false);
-    setCustomerName("");
+    logout();
+    setDropdownOpen(false);
     navigate("/");
   };
 
@@ -82,12 +87,40 @@ const Header = () => {
             )}
           </Link>
           {isAuthenticated ? (
-            <div className="flex items-center gap-2 ml-2">
-              <span className="text-sm font-medium text-foreground">Hi, {customerName}</span>
-              <Button onClick={handleLogout} variant="outline" size="sm" className="gap-1">
-                <LogOut className="w-4 h-4" />
-                Logout
-              </Button>
+            <div className="flex items-center gap-2 ml-2 relative" ref={dropdownRef}>
+              <button
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-secondary transition-colors"
+              >
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                  <User className="w-4 h-4 text-primary" />
+                </div>
+                <span className="text-sm font-medium text-foreground">{user?.name}</span>
+                <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
+              </button>
+              {dropdownOpen && (
+                <div className="absolute right-0 top-full mt-2 w-48 bg-card border border-border rounded-xl shadow-lg z-50 overflow-hidden animate-fade-in">
+                  <div className="px-4 py-3 border-b border-border">
+                    <p className="text-sm font-semibold text-foreground truncate">{user?.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                  </div>
+                  <Link
+                    to="/settings"
+                    onClick={() => setDropdownOpen(false)}
+                    className="flex items-center gap-2 px-4 py-3 text-sm text-foreground hover:bg-secondary transition-colors"
+                  >
+                    <Settings className="w-4 h-4" />
+                    Account Settings
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-2 px-4 py-3 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <Button onClick={() => navigate("/login")} variant="default" size="sm" className="ml-2 gap-1 bg-accent hover:bg-accent/90">
@@ -131,9 +164,17 @@ const Header = () => {
             </Link>
           ))}
           {isAuthenticated ? (
-            <div className="px-6 py-3 border-b border-border">
-              <p className="text-sm font-medium mb-2">Hi, {customerName}</p>
-              <Button onClick={handleLogout} variant="outline" size="sm" className="w-full gap-1">
+            <div className="px-6 py-3 border-b border-border space-y-2">
+              <p className="text-sm font-medium">Hi, {user?.name}</p>
+              <Link
+                to="/settings"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2 text-sm text-foreground hover:text-primary transition-colors"
+              >
+                <Settings className="w-4 h-4" />
+                Account Settings
+              </Link>
+              <Button onClick={handleLogout} variant="outline" size="sm" className="w-full gap-1 text-destructive border-destructive">
                 <LogOut className="w-4 h-4" />
                 Logout
               </Button>
