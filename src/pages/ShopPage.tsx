@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ShoppingCart, Star, MessageSquare } from "lucide-react";
+import { ShoppingCart, Star, MessageSquare, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { products as defaultProducts } from "@/lib/data";
@@ -87,6 +87,10 @@ const ShopPage = () => {
           <div>
             <h1 className="text-3xl font-bold text-foreground mb-2">Baby Shop</h1>
             <p className="text-muted-foreground">Quality products for every milestone.</p>
+            <div className="flex items-center gap-2 mt-2 text-sm text-primary">
+              <MapPin className="w-4 h-4" />
+              <span className="font-semibold">Located in Juja, Kenya</span>
+            </div>
           </div>
           {!isAuthenticated && (
             <Button onClick={() => navigate("/login")} className="bg-accent hover:bg-accent/90">

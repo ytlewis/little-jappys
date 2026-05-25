@@ -92,11 +92,11 @@ const ContactPage = () => {
                     </div>
                     <div>
                       <h3 className="font-semibold text-foreground mb-1">Location</h3>
-                      <p className="text-muted-foreground">
-                        Nairobi, Kenya
+                      <p className="text-muted-foreground font-medium">
+                        Juja, Kenya
                       </p>
                       <p className="text-sm text-muted-foreground mt-1">
-                        Serving families nationwide
+                        Serving families in Juja & surrounding areas
                       </p>
                     </div>
                   </div>

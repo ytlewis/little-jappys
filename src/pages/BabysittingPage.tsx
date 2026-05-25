@@ -45,7 +45,14 @@ interface Booking {
 
 // Enrich default sitters with location and availability data
 const enrichSitters = (sitters: Sitter[]): Sitter[] => {
-  const locations = ["Westlands, Nairobi", "Kilimani, Nairobi", "Karen, Nairobi", "Lavington, Nairobi", "Parklands, Nairobi", "Kileleshwa, Nairobi"];
+  const locations = [
+    "Juja Town Center, Juja", 
+    "Kalimoni Estate, Juja", 
+    "Gachororo, Juja", 
+    "Juja Farm, Juja", 
+    "Witeithie, Juja", 
+    "Mugutha, Juja"
+  ];
   const slots = [
     ["Mon–Fri 8am–6pm", "Weekends 9am–5pm"],
     ["Mon–Wed 7am–4pm", "Fri–Sun 10am–8pm"],
@@ -57,7 +64,7 @@ const enrichSitters = (sitters: Sitter[]): Sitter[] => {
   return sitters.map((s, i) => ({
     ...s,
     location: s.location || locations[i % locations.length],
-    distanceKm: s.distanceKm || parseFloat((Math.random() * 9 + 0.5).toFixed(1)),
+    distanceKm: s.distanceKm || parseFloat((Math.random() * 4 + 0.3).toFixed(1)), // Closer distances for Juja area
     availableSlots: s.availableSlots || slots[i % slots.length],
     rate: s.rate || 500,
   }));
@@ -107,6 +114,10 @@ const BabysittingPage = () => {
           <div>
             <h1 className="text-3xl font-bold text-foreground mb-2">Babysitting Services</h1>
             <p className="text-muted-foreground">Verified & caring sitters near you.</p>
+            <div className="flex items-center gap-2 mt-2 text-sm text-primary">
+              <MapPin className="w-4 h-4" />
+              <span className="font-semibold">Serving Juja, Kenya & surrounding areas</span>
+            </div>
           </div>
           {!isAuthenticated && (
             <Button onClick={() => navigate("/login")} className="bg-accent hover:bg-accent/90">
@@ -240,11 +251,11 @@ const SitterCard = ({
 
         <div className="space-y-1.5 mb-4">
           {sitter.location && (
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-              <span>{sitter.location}</span>
+            <div className="flex items-center gap-1.5 text-sm bg-primary/5 p-2 rounded-lg">
+              <MapPin className="w-4 h-4 text-primary flex-shrink-0" />
+              <span className="font-medium text-foreground">{sitter.location}</span>
               {sitter.distanceKm && (
-                <Badge variant="secondary" className="ml-auto text-xs">{sitter.distanceKm} km away</Badge>
+                <Badge variant="secondary" className="ml-auto text-xs font-semibold">{sitter.distanceKm} km away</Badge>
               )}
             </div>
           )}
